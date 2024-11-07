@@ -5,7 +5,7 @@ import 'package:interface_ai/LawyerChat.dart';
 import 'package:interface_ai/TeacherChat.dart';
 import 'package:interface_ai/chatpage.dart';
 import 'package:interface_ai/history.dart';
-import 'package:interface_ai/tessstttt.dart';
+//import 'package:interface_ai/tessstttt.dart';
 import 'package:interface_ai/test.dart';
 //import 'package:interface_ai/zzz.dart';
 
