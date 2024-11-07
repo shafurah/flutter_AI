@@ -5,6 +5,7 @@ import 'package:interface_ai/LawyerChat.dart';
 import 'package:interface_ai/TeacherChat.dart';
 import 'package:interface_ai/chatpage.dart';
 import 'package:interface_ai/history.dart';
+import 'package:interface_ai/tessstttt.dart';
 import 'package:interface_ai/test.dart';
 //import 'package:interface_ai/zzz.dart';
 
@@ -72,10 +73,10 @@ class AssistantCard extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => Teacherchat()),
                 );
               } else if (name == 'Health and Fitness') {
-                Navigator.push(
+                /*Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => Fitnesschat()),
-                );
+                );*/
               } else if (name == 'Lawyer') {
                 Navigator.push(
                   context,
@@ -274,10 +275,10 @@ class EvoCityHome extends StatelessWidget {
                     Expanded(
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(
+                          /*Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => History()),
-                          );
+                          );*/
                         },
                         child: const Text(
                           'History',

@@ -1,7 +1,112 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-//import 'package:interface_ai/AssistantCard%20.dart';
-import 'package:interface_ai/history.dart';
 import 'package:interface_ai/test.dart';
+
+/*class Lawyerchat extends StatefulWidget {
+  @override
+  _ChatbotState createState() => _ChatbotState();
+}
+
+class _ChatbotState extends State<Lawyerchat> {
+  final TextEditingController _controller = TextEditingController();
+  List<String> messages = [];
+
+  Future<void> sendMessage(String message) async {
+    setState(() {
+      messages.add("You: $message");
+    });
+
+    
+    try {
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': apiKey,
+        },
+        body: json.encode({
+          'messages': [
+            {'role': 'user', 'content': message},
+          ],
+          'max_tokens': 100,
+          'temperature': 0.7,
+        }),
+      );
+
+      // Logging the status code and response body
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // Print full response for debugging purposes
+        print(data); // <-- Add this line to see the full response structure
+
+        final reply = data['choices'][0]['message']['content'] ??
+            'No response available.';
+
+        setState(() {
+          messages.add("AI: $reply");
+        });
+      } else {
+        setState(() {
+          messages.add(
+              "AI: Error - ${response.statusCode}: ${response.reasonPhrase}");
+        });
+      }
+    } catch (e) {
+      setState(() {
+        messages.add("AI: Error - ${e.toString()}");
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Chatbot")),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                return ListTile(title: Text(messages[index]));
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(hintText: "Type a message"),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: () {
+                    final message = _controller.text;
+                    if (message.isNotEmpty) {
+                      sendMessage(message);
+                      _controller.clear();
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}*/
 
 class Lawyerchat extends StatefulWidget {
   const Lawyerchat({super.key});
@@ -11,17 +116,132 @@ class Lawyerchat extends StatefulWidget {
 }
 
 class _LawyerchatState extends State<Lawyerchat> {
+  final TextEditingController _controller = TextEditingController();
+  List<Map<String, String>> messages = []; // Holds messages with roles
+
+  /*Future<void> sendMessage(String userMessage) async {
+    setState(() {
+      // Add user message to messages list
+      messages.add({"role": "user", "content": userMessage});
+    });
+
+   
+    try {
+      // Send POST request to AI backend
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+          //'api-key': apiKey,
+          'Authorization': 'Bearer $apiKey',
+        },
+        body: json.encode({
+          'messages': [
+            {
+              'role': 'system',
+              'content':
+                  'You are an AI assistant that helps with document tasks like writing and reformatting letters, emails, and other documents.'
+            },
+            {'role': 'user', 'content': userMessage},
+          ],
+          'max_tokens': 100,
+          'temperature': 0.7,
+        }),
+      );
+
+      // Log status and response for debugging
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final reply = data['choices'][0]['message']['content'] ??
+            'No response available.';
+
+        setState(() {
+          messages.add({"role": "assistant", "content": reply});
+        });
+      } else {
+        setState(() {
+          messages.add(
+              {"role": "assistant", "content": "Sorry, something went wrong."});
+        });
+      }
+    } catch (e) {
+      setState(() {
+        messages
+            .add({"role": "assistant", "content": "Error - ${e.toString()}"});
+      });
+      print("Error: ${e.toString()}"); // Log the error for debugging
+    }
+  }*/
+
+// Function to handle the API call
+  Future<String> fetchAIResponse(String userMessage) async {
+    final endpoint =
+        'https://ai-azureaistudioevocity129756908007.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2024-02-15-preview';
+    final apiKey = dotenv.env['apiKey']!;
+
+    try {
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+          //'Authorization': 'Bearer $apiKey',
+          'api-key': apiKey,
+        },
+        body: json.encode({
+          'messages': [
+            {
+              'role': 'system',
+              'content':
+                  'You are an AI assistant that helps with document tasks like writing and reformatting letters, emails, and other documents.'
+            },
+            {'role': 'user', 'content': userMessage},
+          ],
+          'max_tokens': 100,
+          'temperature': 0.7,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['choices'][0]['message']['content'] ??
+            'No response available.';
+      } else {
+        return 'Sorry, something went wrong. Status code: ${response.statusCode}';
+      }
+    } on SocketException {
+      print('No Internet connection');
+      return 'No internet connection. Please check your connection and try again.';
+    } catch (e) {
+      return 'Error - ${e.toString()}';
+    }
+  }
+
+  Future<void> sendMessage(String userMessage) async {
+    setState(() {
+      // Add user message to messages list
+      messages.add({"role": "user", "content": userMessage});
+    });
+
+    // Fetch AI response using fetchAIResponse
+    final aiResponse = await fetchAIResponse(userMessage);
+
+    setState(() {
+      // Add AI response to messages list
+      messages.add({"role": "assistant", "content": aiResponse});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Remove the AppBar and use a gradient directly in the body
+      // Background gradient setup
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFF7A2A80), // Start color
-              Color(0xFF090909), // End color
-            ],
+            colors: [Color(0xFF7A2A80), Color(0xFF090909)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -29,10 +249,9 @@ class _LawyerchatState extends State<Lawyerchat> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Title and Buttons
               const SizedBox(height: 20),
+              // Title and Buttons
               Container(
                 margin: const EdgeInsets.only(bottom: 20),
                 child: Row(
@@ -59,59 +278,6 @@ class _LawyerchatState extends State<Lawyerchat> {
                         ],
                       ),
                     ),
-                    /*Row(
-                      children: [
-                        // Home button
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: Colors
-                                .purple[700], // Background color of the button
-                            borderRadius:
-                                BorderRadius.circular(20), // Rounded corners
-                          ),
-                          child: TextButton.icon(
-                            onPressed: () {
-                              // Implement home button functionality here
-                            },
-                            icon: const Icon(Icons.home, color: Colors.white),
-                            label: const Text(
-                              'Home',
-                              style: TextStyle(
-                                  color: Colors
-                                      .white), // Set the text color to white
-                            ),
-                          ),
-                        ),
-                        // AI Portal button
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: Colors
-                                .purple[300], // Background color of the button
-                            borderRadius:
-                                BorderRadius.circular(20), // Rounded corners
-                          ),
-                          child: TextButton.icon(
-                            onPressed: () {
-                              // Ensure MyApp is a valid widget in your code
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => MyApp()),
-                              );
-                            },
-                            label: const Text(
-                              'AI Portal',
-                              style: TextStyle(
-                                  color: Colors
-                                      .white), // Set the text color to white
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),*/
-
                     Container(
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 146, 29, 197)
@@ -143,9 +309,7 @@ class _LawyerchatState extends State<Lawyerchat> {
                             ),
                             child: Text('Home'),
                           ),
-
                           SizedBox(width: 8), // Space between buttons
-
                           TextButton(
                             onPressed: () {
                               Navigator.push(
@@ -171,175 +335,45 @@ class _LawyerchatState extends State<Lawyerchat> {
                 ),
               ),
 
-              // Chat and History buttons row
-              /*Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Chat Button
-                    Expanded(
-                      child: Container(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EvoCityHome()),
-                            );
-                          },
-                          child: const Text(
-                            'Chat',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+              // Chat messages display
+              Expanded(
+                child: ListView.builder(
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final message = messages[index];
+                    return ListTile(
+                      title: Align(
+                        alignment: message["role"] == "user"
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          padding: EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: message["role"] == "user"
+                                ? Colors.blue
+                                : Colors.grey[800],
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10), // Space between buttons
-                    // History Button
-                    Expanded(
-                      child: Container(
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => History()),
-                            );
-                          },
-                          child: const Text(
-                            'History',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),*/
-
-              Row(
-                children: [
-                  // Inline History button (align to the left)
-                  TextButton.icon(
-                    onPressed: () {
-                      // Navigate to the history page
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => History()),
-                      );
-                    },
-                    icon: Icon(Icons.history, color: Colors.white70),
-                    label: Text('History',
-                        style: TextStyle(color: Colors.white70)),
-                  ),
-
-                  // Recent Chats button
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // Handle recent chats functionality
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.withOpacity(0.2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    icon: Icon(Icons.chat_bubble_outline, color: Colors.white),
-                    label: Text('Recent Chats',
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                  const SizedBox(width: 10), // Space between buttons
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Recent Talks
-              /*ElevatedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.chat_bubble_outline),
-                label: Text('Recent Talks'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.withOpacity(0.2),
-                ),
-              ),
-              SizedBox(height: 20),*/
-
-              // Chat bubble for "Evo"
-              Container(
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: Color(0xFF6E3687), // Chat bubble color
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Avatar Image
-                    CircleAvatar(
-                      radius:
-                          15, // Set the radius to adjust the size of the avatar
-                      backgroundImage: AssetImage(
-                          'image/avatar1.png'), // Load your uploaded image
-                    ),
-                    const SizedBox(width: 12), // Space between avatar and text
-
-                    // Text Column (Name and Message)
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Evo:',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            'Hello! I\'m your Evo AI Lawyer, here to simplify help with law. Just ask me any question, and let\'s enjoy learning together.',
+                          child: Text(
+                            message["content"]!,
                             style: TextStyle(color: Colors.white),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Sample prompts
-              Text(
-                'Sample prompts:',
-                style: TextStyle(color: Colors.white60, fontSize: 12),
-              ),
-              const SizedBox(height: 5),
-              Container(
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: Color(0xFF6E3687),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'What are your beginner tips for learning a new language?',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-
-              const Spacer(),
-
-              // Input field
+              // Input field and send button
               Row(
                 children: [
-                  Icon(Icons.mic,
-                      color: Colors.white), // Adjust icon color and size
+                  Icon(Icons.mic, color: Colors.white),
                   SizedBox(width: 8),
                   Expanded(
                     child: TextField(
+                      controller: _controller,
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Ask AI anything on any topic',
@@ -357,7 +391,11 @@ class _LawyerchatState extends State<Lawyerchat> {
                   IconButton(
                     icon: Icon(Icons.send, color: Colors.white),
                     onPressed: () {
-                      // Handle send action
+                      final message = _controller.text;
+                      if (message.isNotEmpty) {
+                        sendMessage(message);
+                        _controller.clear();
+                      }
                     },
                   ),
                 ],

@@ -198,11 +198,11 @@ class EvoCityChatScreen extends StatelessWidget {
                       child: Container(
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
+                            /*Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => History()),
-                            );
+                            );*/
                           },
                           child: const Text(
                             'History',
